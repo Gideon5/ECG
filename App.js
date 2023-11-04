@@ -1,20 +1,40 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { Header } from 'react-native-elements'; // Import the Header component
+
+import Home from './screens/Home';
+import Onboard from './screens/Auth/Onboard';
+import LoginScreen from './screens/Auth/LoginScreen';
+import RegisterScreen from './screens/Auth/RegisterScreen';
+import DeviceConnection from './screens/Connection/DeviceConnection';
+import { DataProvider } from './contexts/DataContext';
+import Enquiry from './screens/Enquiry';
+import UserDetails from './screens/UserDetails';
+
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <DataProvider>
+        <Stack.Navigator initialRouteName="Onboard">
+          <Stack.Screen
+            name="Onboard"
+            component={Onboard}
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Enquiry" component={Enquiry} options={{ headerShown: false }} />
+          <Stack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      </DataProvider>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
