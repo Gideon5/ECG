@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { DataProvider } from "../../contexts/DataContext";
+import { HeartRateContext } from "../../contexts/HeartRateContext";
 import Graph from "../Graph/Graph";
 import Hr from "../Graph/Hr";
 import { Audio } from "expo-av";
@@ -24,10 +25,25 @@ const GraphView = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [heartRate, setHeartRate] = useState(0); // Initialize with 0
   const [heartRateThreshold, setHeartRateThreshold] = useState(""); // Default threshold for running
-  const [activity, setActivity] = useState("running");
-  const [heartRateData, setHeartRateData] = useState(null);
+  const [activity, setActivity] = useState("Resting");
+  // const [heartRateData, setHeartRateData] = useState(null);
+  const { heartRateData, loading, setLoading } = useContext(HeartRateContext);
 
   var deviceWidth = Dimensions.get("window").width;
+
+  useEffect(() => {
+    // Fetch the last value from heartRateData when it changes
+    if (
+      !loading &&
+      heartRateData &&
+      heartRateData.results[0] &&
+      heartRateData.results[0].length > 0
+    ) {
+      const rawData = heartRateData.results[0];
+      const lastValue = rawData[rawData.length - 1][0];
+      setHeartRate(lastValue);
+    }
+  }, [heartRateData, loading]);
 
   const playSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
@@ -46,31 +62,35 @@ const GraphView = () => {
 
   // Use useEffect to update heartRateThreshold when activity changes
   useEffect(() => {
-    if (activity === "running") {
+    if (activity === "Hard Aerobics") {
       setHeartRateThreshold(100);
-    } else if (activity === "walking") {
+    } else if (activity === "Normal Aerobics") {
       setHeartRateThreshold(70);
-    } else if (activity === "resting") {
+    } else if (activity === "Resting") {
       setHeartRateThreshold(40);
     }
   }, [activity]);
 
+  // useEffect(() =>{
+  //   setHeartRateData(heartRate)
+  // },(heartRateData))
+
   const compareHeartRate = () => {
-    if (activity === "running" && heartRate > heartRateThreshold) {
+    if (activity === "Hard Aerobics" && heartRate > heartRateThreshold) {
       playSound();
       console.log(
         "Heart rate exceeds threshold: ",
         heartRate,
         heartRateThreshold
       );
-    } else if (activity === "walking" && heartRate > heartRateThreshold) {
+    } else if (activity === "Normal Aerobics" && heartRate > heartRateThreshold) {
       playSound();
       console.log(
         "Heart rate exceeds threshold: ",
         heartRate,
         heartRateThreshold
       );
-    } else if (activity === "resting" && heartRate > heartRateThreshold) {
+    } else if (activity === "Resting" && heartRate > heartRateThreshold) {
       playSound();
       console.log(
         "Heart rate exceeds threshold: ",
@@ -107,23 +127,6 @@ const GraphView = () => {
               value={heartRate.toString()}
               onChangeText={(text) => setHeartRate(parseInt(text) || 0)}
             />
-
-            <TouchableOpacity
-              className="flex items-center justify-center h-12 rounded-lg bg-blue-300 w-40"
-              onPress={compareHeartRate}
-              style={{
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 4,
-                },
-                shadowOpacity: 0.25,
-                shadowRadius: 4,
-                elevation: 5,
-              }}
-            >
-              <Text className="text-center text-white">Set HeartRate</Text>
-            </TouchableOpacity>
           </View>
         </View>
 

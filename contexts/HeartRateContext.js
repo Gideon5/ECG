@@ -2,10 +2,10 @@ import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 // import { err } from "react-native-svg/lib/typescript/xml";
 
-export const DataContext = createContext();
+export const HeartRateContext = createContext();
 
-export const DataProvider = ({ children }) => {
-  const [chartData, setChartData] = useState([]);
+export const HeartRateProvider = ({ children }) => {
+  const [heartRateData, setHeartRateData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(true);
 
@@ -18,12 +18,12 @@ export const DataProvider = ({ children }) => {
     setLoading(true);
     console.log('starting');
     try {
-      console.log('TRYING');
+      console.log('TRYING....');
 
       const response = await axios.post(
         "https://industrial.api.ubidots.com/api/v1.6/data/raw/series",
         {
-          variables: ["65251116ec97f6000e5ea34c"],
+          variables: ["65251115d8a6b0000e7a48aa"],
           columns: ["value.value", "timestamp"],
           join_dataframes: false,
         },
@@ -35,7 +35,7 @@ export const DataProvider = ({ children }) => {
         }
       );
       if (response.status === 200) {
-        setChartData(response.data);
+        setHeartRateData(response.data);
       } else {
         console.error("Error fetching data:", response.statusText);
       }
@@ -57,10 +57,10 @@ export const DataProvider = ({ children }) => {
   };
 
   return (
-    <DataContext.Provider
+    <HeartRateContext.Provider
       value={{
-        chartData,
-        setChartData,
+        heartRateData,
+        setHeartRateData,
         loading,
         setLoading,
         isConnected,
@@ -68,6 +68,6 @@ export const DataProvider = ({ children }) => {
       }}
     >
       {children}
-    </DataContext.Provider>
+    </HeartRateContext.Provider>
   );
 };

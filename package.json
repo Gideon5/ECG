@@ -21,6 +21,7 @@
     "expo": "~48.0.15",
     "expo-av": "~13.2.1",
     "expo-cli": "^6.3.10",
+    "expo-dev-client": "~2.2.1",
     "expo-status-bar": "~1.4.4",
     "expo-updates": "~0.16.4",
     "firebase": "^9.23.0",

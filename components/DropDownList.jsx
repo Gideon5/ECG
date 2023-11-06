@@ -6,9 +6,9 @@ const DropDownList = () => {
   const [selected, setSelected] = useState("");
   
   const data = [
-      {key:'1', value:'Walking'},
+      {key:'1', value:'Normal Aerobics'},
       {key:'2', value:'Resting'},
-      {key:'3', value:'Running'},
+      {key:'3', value:'Hard Aerobics'},
       // {key:'4', value:'Computers', disabled:true},
       // {key:'5', value:'Vegetables'},
       // {key:'6', value:'Diary Products'},

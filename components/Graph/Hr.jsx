@@ -1,53 +1,151 @@
-import React, { useContext, useState, useEffect } from "react";
-import { LineChart } from "react-native-wagmi-charts";
+import React, { useState } from "react";
+import { LineChart } from "react-native-chart-kit";
+import { Text, Dimensions, View, Button } from "react-native";
 import { DataContext } from "../../contexts/DataContext";
+import { useContext, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { format } from "date-fns";
+import { HeartRateContext } from "../../contexts/HeartRateContext";
+
 
 const Hr = () => {
-  const { chartData } = useContext(DataContext);
+  const { heartRateData, loading, setLoading } = useContext(HeartRateContext);
+  const navigate = useNavigation();
 
-  const [lineGraphWidth, setLineGraphWidth] = useState(250);
-  // const data = chartData.map((dataPoint) => ({
-  //   timestamp: dataPoint.created_at,
-  //   value: parseInt(dataPoint.field1),
-  // }));
+  const [lineGraphWidth,setLineGraphWidth] = useState(250);
+  
 
-  // Extract the values from chartData
-  const columns = chartData.columns[0];
-  const results = chartData.results[0];
+  
 
-  useEffect(() => {
-    // Get the current user's details from Firestore
-    // console.log('This is it ,',results.length);
-    setLineGraphWidth(results.length * 35);
-  }, []);
 
-  // Get the indices of the timestamp and value columns
-  const timestampIndex = columns.indexOf("timestamp");
-  const valueIndex = columns.indexOf("64ac3f7bc06e0d000c600e47.value.value");
+  let labels = [];
+  let data = [];
+  
+  if (!loading) {
 
-  // Create the data array expected by LineChart
-  const data = results.map((result) => ({
-    timestamp: result[timestampIndex],
-    value: result[valueIndex],
-  }));
+    if (heartRateData && heartRateData.results && heartRateData.results[0] && heartRateData.results[0].length > 0) {
+      setLoading(false);
+      const rawData = heartRateData.results[0];
 
-  //  console.log("Data in the graph")
-  //  console.log(data); // Log the data array to the console
+      // console.log(rawData);
+      data = rawData.map(([value, label]) => ({
+        value,
+        label,
+      }));
+
+      // console.log(data);
+
+      // console.log("This is data ", data);
+      labels = data.map((item) => item.label);
+      data = data.map((item) => item.value);
+      // console.log("labels ", labels);
+      // console.log("data ", data);
+      
+    } else {
+      labels = [""];
+      data = [0];
+    }
+  }
+
+  // useEffect(() => {
+  //   // Get the current user's details from Firestore
+  //   // console.log('This is it ,',results.length);
+  //   setLineGraphWidth(heartRateData[0].length * 35);
+  // }, []);
+
+ 
+
+  // const MyLineChart = ({
+  //   data,
+  //   width,
+  //   height,
+  //   xAxisLabel,
+  //   yAxisLabel,
+  //   yAxisSuffix,
+  //   yAxisInterval,
+  //   chartConfig,
+  // }) => {
+  //   return (
+  //     <LineChart
+  //     data={{
+  //       labels: data.map(item => item.label),
+  //       datasets: [
+  //         {
+  //           data: data.map(item => item.value),
+  //         },
+  //       ],
+  //     }}
+  //       width={width}
+  //       height={height}
+  //       xLabels={labels} // Pass the labels to xLabels prop
+  //       xAxisLabel={xAxisLabel}
+  //       yAxisLabel={yAxisLabel}
+  //       yAxisSuffix={yAxisSuffix}
+  //       yAxisInterval={yAxisInterval}
+  //       chartConfig={chartConfig}
+  //       withDots={true}
+  //       style={{
+  //         marginVertical: 8,
+  //         borderRadius: 16,
+  //       }}
+  //     />
+  //   );
+  // };
 
   return (
-    <LineChart.Provider data={data}>
-      <LineChart width={1000} height={200}>
-        {/* // from react-native//width={lineGraphWidth} */}
-
-        <LineChart.Path color="red" strokeWidth={0} />
-        <LineChart.CursorCrosshair>
-          <LineChart.Tooltip />
-          <LineChart.Tooltip position="bottom">
-            <LineChart.DatetimeText />
-          </LineChart.Tooltip>
-        </LineChart.CursorCrosshair>
-      </LineChart>
-    </LineChart.Provider>
+    <View>
+      {!loading ? (
+        <LineChart
+          data={{
+            labels: labels,
+            datasets: [
+              {
+                data: data,
+                // withDots: false ,
+                color: (opacity = 1) => `rgba(230, 0, 0, ${opacity})`, // Solid red color
+              },
+            ],
+          }}
+          width={10000} // from react-native
+          height={300}
+          yAxisLabel={""}
+          xAxisLabel={""}
+          chartConfig={{
+            backgroundColor: "#1cc510",
+            backgroundGradientFrom: "#eff3ff",
+            backgroundGradientTo: "#efefef",
+            decimalPlaces: 2, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(77, 166, 255, ${opacity})`, // Solid red color
+            strokeWidth: 2,
+            style: {
+              borderRadius: 15,
+            },
+            propsForDots: {
+              r: "6",
+              strokeWidth: "2",
+              stroke: "#ffa726"
+            },
+            propsForVerticalLabels: {
+              fill: "red", // Set the color to yellow
+            },
+          }}
+          
+          yAxisInterval={1}
+          stickyYAxis={true}
+          formatXLabel={(value) => {
+            const date = new Date(value);
+            const seconds = date.getSeconds();
+            return ``; //`${seconds}s`
+          }}
+          style={{
+            marginVertical: 5,
+            borderRadius: 0,
+          }}
+        />
+      ) : (
+        <Text>Loading data...</Text>
+      )}
+    </View>
   );
 };
 
